@@ -11,7 +11,28 @@
   <a href="https://nousresearch.com"><img src="https://img.shields.io/badge/Built%20by-Nous%20Research-blueviolet?style=for-the-badge" alt="Built by Nous Research"></a>
 </p>
 
-> My personal fork of [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) &mdash; a self-improving AI agent with persistent memory, multi-platform messaging, and full local inference support.
+> My personal fork of [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) &mdash; a self-improving AI agent with persistent memory, multi-platform messaging, and fully local inference. No cloud LLM APIs. No subscriptions. No data leaving your machine.
+
+---
+
+## The Core: Local Heretic Model
+
+Everything runs through **Qwen 3.6 35B-A3B Abliterated Heretic** &mdash; a locally-hosted, uncensored model served via [LM Studio](https://lmstudio.ai). This is the foundation the entire system is built on.
+
+```
+localhost:1234 &rarr; Hermes Agent &rarr; Tools, Memory, Gateway, Platforms
+```
+
+**Why this matters:**
+
+- **Zero API costs** &mdash; no per-token billing, no rate limits, no usage caps. Run it 24/7 for the cost of electricity.
+- **Zero data leakage** &mdash; every prompt, every tool call, every memory stays on your hardware. Nothing is transmitted to any third-party API.
+- **Uncensored reasoning** &mdash; the abliterated heretic variant removes artificial refusal patterns, giving the agent unrestricted problem-solving capability across all domains.
+- **Full context window** &mdash; 65,536 tokens of context, enough for deep multi-turn conversations with tool use and memory injection.
+- **Mixture-of-Experts efficiency** &mdash; 35B total parameters with only 3B active per forward pass (A3B), meaning it runs fast on consumer hardware while punching well above its weight class.
+- **Always available** &mdash; no outages, no provider downtime, no API deprecations. The model is a file on your disk.
+
+The agent, the gateway, the memory system, the tools &mdash; none of it depends on OpenAI, Anthropic, or any external provider. Swap the model in LM Studio whenever a better one drops. The architecture is model-agnostic; the philosophy is model-local.
 
 ---
 
@@ -55,19 +76,11 @@ Cross-platform conversation continuity &mdash; start on Telegram, continue on Di
 
 ### Local-First Inference
 
-Run any model through any OpenAI-compatible endpoint. No vendor lock-in.
+The default setup runs entirely on local hardware via LM Studio &mdash; no cloud API keys required. The agent connects to `localhost:1234` and speaks the OpenAI-compatible chat completions protocol.
 
-```yaml
-# config.yaml — point at LM Studio, Ollama, vLLM, or any endpoint
-model:
-  default: your-model-name
-  provider: custom
-  api_key: lm-studio
-  base_url: http://localhost:1234/v1
-  context_length: 65536
-```
+For scaling up, the same config pattern works with a rented H200 running vLLM or TGI &mdash; just change the `base_url` to your remote GPU endpoint. The architecture doesn't care where inference happens, only that it speaks OpenAI format.
 
-Supports 15+ providers out of the box: [Nous Portal](https://portal.nousresearch.com), [OpenRouter](https://openrouter.ai), NVIDIA NIM, Google Gemini, OpenAI, Anthropic, Hugging Face, Ollama, Kimi/Moonshot, MiniMax, z.ai/GLM, and any custom endpoint.
+Also supports 15+ cloud providers if needed: [Nous Portal](https://portal.nousresearch.com), [OpenRouter](https://openrouter.ai), NVIDIA NIM, Google Gemini, OpenAI, Anthropic, Hugging Face, Ollama, and more. But the point is you don't need any of them.
 
 ### Autonomous Tool Use
 
