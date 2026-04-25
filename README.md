@@ -2,7 +2,7 @@
   <img src="assets/banner.png" alt="Hermes Agent" width="100%">
 </p>
 
-# Hermes Agent ☤
+# Hermes Agent
 
 <p align="center">
   <a href="https://hermes-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-hermes--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
@@ -11,19 +11,105 @@
   <a href="https://nousresearch.com"><img src="https://img.shields.io/badge/Built%20by-Nous%20Research-blueviolet?style=for-the-badge" alt="Built by Nous Research"></a>
 </p>
 
-**The self-improving AI agent built by [Nous Research](https://nousresearch.com).** It's the only agent with a built-in learning loop — it creates skills from experience, improves them during use, nudges itself to persist knowledge, searches its own past conversations, and builds a deepening model of who you are across sessions. Run it on a $5 VPS, a GPU cluster, or serverless infrastructure that costs nearly nothing when idle. It's not tied to your laptop — talk to it from Telegram while it works on a cloud VM.
+> My personal fork of [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) &mdash; a self-improving AI agent with persistent memory, multi-platform messaging, and full local inference support.
 
-Use any model you want — [Nous Portal](https://portal.nousresearch.com), [OpenRouter](https://openrouter.ai) (200+ models), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, or your own endpoint. Switch with `hermes model` — no code changes, no lock-in.
+---
 
-<table>
-<tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
-<tr><td><b>Lives where you do</b></td><td>Telegram, Discord, Slack, WhatsApp, Signal, and CLI — all from a single gateway process. Voice memo transcription, cross-platform conversation continuity.</td></tr>
-<tr><td><b>A closed learning loop</b></td><td>Agent-curated memory with periodic nudges. Autonomous skill creation after complex tasks. Skills self-improve during use. FTS5 session search with LLM summarization for cross-session recall. <a href="https://github.com/plastic-labs/honcho">Honcho</a> dialectic user modeling. Compatible with the <a href="https://agentskills.io">agentskills.io</a> open standard.</td></tr>
-<tr><td><b>Scheduled automations</b></td><td>Built-in cron scheduler with delivery to any platform. Daily reports, nightly backups, weekly audits — all in natural language, running unattended.</td></tr>
-<tr><td><b>Delegates and parallelizes</b></td><td>Spawn isolated subagents for parallel workstreams. Write Python scripts that call tools via RPC, collapsing multi-step pipelines into zero-context-cost turns.</td></tr>
-<tr><td><b>Runs anywhere, not just your laptop</b></td><td>Six terminal backends — local, Docker, SSH, Daytona, Singularity, and Modal. Daytona and Modal offer serverless persistence — your agent's environment hibernates when idle and wakes on demand, costing nearly nothing between sessions. Run it on a $5 VPS or a GPU cluster.</td></tr>
-<tr><td><b>Research-ready</b></td><td>Batch trajectory generation, Atropos RL environments, trajectory compression for training the next generation of tool-calling models.</td></tr>
-</table>
+## What Makes This Agent Different
+
+Hermes isn't a chatbot wrapper. It's a persistent, self-improving system that learns from every interaction, runs tools autonomously, and lives across every platform you use &mdash; all from a single process.
+
+### Holographic Memory
+
+A fully local memory system powered by **Holographic Reduced Representations** (HRR) &mdash; a vector symbolic architecture from cognitive science. No embedding models, no cloud APIs, no external dependencies beyond NumPy.
+
+| Capability | How It Works |
+|-----------|-------------|
+| **Fact Storage** | SQLite-backed with FTS5 full-text search and trust scoring |
+| **Compositional Retrieval** | Algebraic bind/unbind/bundle operations on phase vectors &mdash; find facts by structural relationships, not just keywords |
+| **Entity Resolution** | Auto-extracts entities from stored facts, resolves aliases, links them in a knowledge graph |
+| **Trust Scoring** | Asymmetric feedback loop &mdash; helpful facts gain trust slowly (+0.05), unhelpful facts decay fast (-0.10) |
+| **Contradiction Detection** | Finds facts that share entities but diverge in content &mdash; automated memory hygiene |
+| **Multi-Entity Reasoning** | Vector-space JOINs across entities &mdash; "find everything about X *and* Y together" |
+| **Hybrid Search** | FTS5 keyword (40%) + Jaccard overlap (30%) + HRR similarity (30%), trust-weighted |
+
+Zero sustained RAM cost. Vectors live on disk, loaded only during queries (~400KB per search).
+
+### Self-Improving Skills
+
+The agent creates procedural skills from experience, improves them during subsequent use, and persists them across sessions. Skills are portable Markdown files compatible with the [agentskills.io](https://agentskills.io) open standard.
+
+### Multi-Platform Gateway
+
+A single `hermes gateway` process connects to all your messaging platforms simultaneously:
+
+- **Discord** &mdash; full bot with slash commands
+- **Telegram** &mdash; bot with voice memo transcription
+- **Slack** &mdash; workspace app with subcommand routing
+- **WhatsApp** &mdash; via WhatsApp Business API
+- **Signal** &mdash; via signal-cli
+- **Home Assistant** &mdash; smart home integration
+- **Email, SMS, Matrix, Mattermost, DingTalk, WeChat, Feishu, QQ** &mdash; and more
+
+Cross-platform conversation continuity &mdash; start on Telegram, continue on Discord.
+
+### Local-First Inference
+
+Run any model through any OpenAI-compatible endpoint. No vendor lock-in.
+
+```yaml
+# config.yaml — point at LM Studio, Ollama, vLLM, or any endpoint
+model:
+  default: your-model-name
+  provider: custom
+  api_key: lm-studio
+  base_url: http://localhost:1234/v1
+  context_length: 65536
+```
+
+Supports 15+ providers out of the box: [Nous Portal](https://portal.nousresearch.com), [OpenRouter](https://openrouter.ai), NVIDIA NIM, Google Gemini, OpenAI, Anthropic, Hugging Face, Ollama, Kimi/Moonshot, MiniMax, z.ai/GLM, and any custom endpoint.
+
+### Autonomous Tool Use
+
+40+ built-in tools organized into toolsets. The agent decides when and how to use them:
+
+| Category | Tools |
+|----------|-------|
+| **Terminal** | Execute commands across 6 backends (local, Docker, SSH, Daytona, Singularity, Modal) |
+| **Files** | Read, write, search, patch files with full filesystem access |
+| **Code** | Execute Python with persistent state, install packages |
+| **Web** | Browse pages, search the web, take screenshots |
+| **Git** | Full git operations &mdash; clone, commit, branch, PR creation |
+| **Memory** | Fact store with 9 actions: add, search, probe, related, reason, contradict, update, remove, list |
+| **Delegation** | Spawn subagents for parallel workstreams |
+
+### Context Compression
+
+Intelligent conversation compression that preserves prompt caching. When context grows long, Hermes compresses older turns while protecting recent messages and cached prefixes.
+
+```yaml
+compression:
+  enabled: true
+  threshold: 0.5
+  target_ratio: 0.2
+  protect_last_n: 20
+```
+
+### Scheduled Automations
+
+Built-in cron scheduler delivers results to any connected platform:
+
+```
+/cron add "Every morning at 8am, check my GitHub notifications and summarize them"
+```
+
+### Session Management
+
+SQLite-backed session store with FTS5 search. Resume any past conversation, search across all sessions, get LLM-powered summaries of previous work.
+
+### Skin Engine
+
+Data-driven CLI theming &mdash; customize banners, spinners, colors, and branding with pure YAML. Ships with `default`, `ares`, `mono`, and `slate` themes. Drop custom skins into `~/.hermes/skins/`.
 
 ---
 
@@ -33,148 +119,82 @@ Use any model you want — [Nous Portal](https://portal.nousresearch.com), [Open
 curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
 ```
 
-Works on Linux, macOS, WSL2, and Android via Termux. The installer handles the platform-specific setup for you.
-
-> **Android / Termux:** The tested manual path is documented in the [Termux guide](https://hermes-agent.nousresearch.com/docs/getting-started/termux). On Termux, Hermes installs a curated `.[termux]` extra because the full `.[all]` extra currently pulls Android-incompatible voice dependencies.
->
-> **Windows:** Native Windows is not supported. Please install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) and run the command above.
-
-After installation:
+Works on Linux, macOS, WSL2, and Android (Termux).
 
 ```bash
-source ~/.bashrc    # reload shell (or: source ~/.zshrc)
-hermes              # start chatting!
+source ~/.bashrc    # reload shell
+hermes              # start chatting
 ```
-
----
 
 ## Getting Started
 
 ```bash
-hermes              # Interactive CLI — start a conversation
-hermes model        # Choose your LLM provider and model
-hermes tools        # Configure which tools are enabled
-hermes config set   # Set individual config values
-hermes gateway      # Start the messaging gateway (Telegram, Discord, etc.)
-hermes setup        # Run the full setup wizard (configures everything at once)
-hermes claw migrate # Migrate from OpenClaw (if coming from OpenClaw)
-hermes update       # Update to the latest version
-hermes doctor       # Diagnose any issues
+hermes              # Interactive CLI
+hermes model        # Choose provider + model
+hermes setup        # Full setup wizard
+hermes gateway      # Start messaging gateway
+hermes tools        # Configure toolsets
+hermes doctor       # Diagnose issues
 ```
 
-📖 **[Full documentation →](https://hermes-agent.nousresearch.com/docs/)**
+## Configuration
 
-## CLI vs Messaging Quick Reference
+All settings live in two files (neither is committed to the repo):
 
-Hermes has two entry points: start the terminal UI with `hermes`, or run the gateway and talk to it from Telegram, Discord, Slack, WhatsApp, Signal, or Email. Once you're in a conversation, many slash commands are shared across both interfaces.
+| File | Contains | Location |
+|------|----------|----------|
+| `config.yaml` | Model, tools, display, memory, compression, skills, scheduling | `~/.hermes/config.yaml` |
+| `.env` | API keys and tokens only | `~/.hermes/.env` |
 
-| Action | CLI | Messaging platforms |
-|---------|-----|---------------------|
-| Start chatting | `hermes` | Run `hermes gateway setup` + `hermes gateway start`, then send the bot a message |
-| Start fresh conversation | `/new` or `/reset` | `/new` or `/reset` |
-| Change model | `/model [provider:model]` | `/model [provider:model]` |
-| Set a personality | `/personality [name]` | `/personality [name]` |
-| Retry or undo the last turn | `/retry`, `/undo` | `/retry`, `/undo` |
-| Compress context / check usage | `/compress`, `/usage`, `/insights [--days N]` | `/compress`, `/usage`, `/insights [days]` |
-| Browse skills | `/skills` or `/<skill-name>` | `/<skill-name>` |
-| Interrupt current work | `Ctrl+C` or send a new message | `/stop` or send a new message |
-| Platform-specific status | `/platforms` | `/status`, `/sethome` |
+Secrets never touch the repository. The `.gitignore` excludes `.env`, `logs/`, private keys, and all credential files.
 
-For the full command lists, see the [CLI guide](https://hermes-agent.nousresearch.com/docs/user-guide/cli) and the [Messaging Gateway guide](https://hermes-agent.nousresearch.com/docs/user-guide/messaging).
+## Project Structure
 
----
-
-## Documentation
-
-All documentation lives at **[hermes-agent.nousresearch.com/docs](https://hermes-agent.nousresearch.com/docs/)**:
-
-| Section | What's Covered |
-|---------|---------------|
-| [Quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart) | Install → setup → first conversation in 2 minutes |
-| [CLI Usage](https://hermes-agent.nousresearch.com/docs/user-guide/cli) | Commands, keybindings, personalities, sessions |
-| [Configuration](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) | Config file, providers, models, all options |
-| [Messaging Gateway](https://hermes-agent.nousresearch.com/docs/user-guide/messaging) | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant |
-| [Security](https://hermes-agent.nousresearch.com/docs/user-guide/security) | Command approval, DM pairing, container isolation |
-| [Tools & Toolsets](https://hermes-agent.nousresearch.com/docs/user-guide/features/tools) | 40+ tools, toolset system, terminal backends |
-| [Skills System](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills) | Procedural memory, Skills Hub, creating skills |
-| [Memory](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory) | Persistent memory, user profiles, best practices |
-| [MCP Integration](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp) | Connect any MCP server for extended capabilities |
-| [Cron Scheduling](https://hermes-agent.nousresearch.com/docs/user-guide/features/cron) | Scheduled tasks with platform delivery |
-| [Context Files](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) | Project context that shapes every conversation |
-| [Architecture](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) | Project structure, agent loop, key classes |
-| [Contributing](https://hermes-agent.nousresearch.com/docs/developer-guide/contributing) | Development setup, PR process, code style |
-| [CLI Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands) | All commands and flags |
-| [Environment Variables](https://hermes-agent.nousresearch.com/docs/reference/environment-variables) | Complete env var reference |
-
----
-
-## Migrating from OpenClaw
-
-If you're coming from OpenClaw, Hermes can automatically import your settings, memories, skills, and API keys.
-
-**During first-time setup:** The setup wizard (`hermes setup`) automatically detects `~/.openclaw` and offers to migrate before configuration begins.
-
-**Anytime after install:**
-
-```bash
-hermes claw migrate              # Interactive migration (full preset)
-hermes claw migrate --dry-run    # Preview what would be migrated
-hermes claw migrate --preset user-data   # Migrate without secrets
-hermes claw migrate --overwrite  # Overwrite existing conflicts
+```
+hermes-agent/
+  run_agent.py          # Core conversation loop (AIAgent class)
+  model_tools.py        # Tool orchestration and discovery
+  cli.py                # Interactive CLI (HermesCLI class)
+  tools/                # 40+ tool implementations, auto-discovered
+    environments/       # Terminal backends (local, Docker, SSH, Modal, ...)
+  gateway/              # Multi-platform messaging gateway
+    platforms/          # Per-platform adapters
+  plugins/
+    memory/             # Memory providers (holographic, honcho, mem0, ...)
+  skills/               # Built-in skill library
+  optional-skills/      # Extended skills (installable on demand)
+  ui-tui/               # Ink-based terminal UI
+  agent/                # Provider adapters, memory, caching, compression
+  cron/                 # Scheduled task engine
+  tests/                # ~15K tests across ~700 files
 ```
 
-What gets imported:
-- **SOUL.md** — persona file
-- **Memories** — MEMORY.md and USER.md entries
-- **Skills** — user-created skills → `~/.hermes/skills/openclaw-imports/`
-- **Command allowlist** — approval patterns
-- **Messaging settings** — platform configs, allowed users, working directory
-- **API keys** — allowlisted secrets (Telegram, OpenRouter, OpenAI, Anthropic, ElevenLabs)
-- **TTS assets** — workspace audio files
-- **Workspace instructions** — AGENTS.md (with `--workspace-target`)
+## CLI Quick Reference
 
-See `hermes claw migrate --help` for all options, or use the `openclaw-migration` skill for an interactive agent-guided migration with dry-run previews.
-
----
-
-## Contributing
-
-We welcome contributions! See the [Contributing Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/contributing) for development setup, code style, and PR process.
-
-Quick start for contributors — clone and go with `setup-hermes.sh`:
-
-```bash
-git clone https://github.com/NousResearch/hermes-agent.git
-cd hermes-agent
-./setup-hermes.sh     # installs uv, creates venv, installs .[all], symlinks ~/.local/bin/hermes
-./hermes              # auto-detects the venv, no need to `source` first
-```
-
-Manual path (equivalent to the above):
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv venv --python 3.11
-source venv/bin/activate
-uv pip install -e ".[all,dev]"
-scripts/run_tests.sh
-```
-
-> **RL Training (optional):** The RL/Atropos integration (`environments/`) ships via the `atroposlib` and `tinker` dependencies pulled in by `.[all,dev]` — no submodule setup required.
+| Action | Command |
+|--------|---------|
+| New conversation | `/new` or `/reset` |
+| Switch model | `/model [provider:model]` |
+| Set personality | `/personality [name]` |
+| Retry / undo | `/retry`, `/undo` |
+| Compress context | `/compress` |
+| Check usage | `/usage` |
+| Browse skills | `/skills` |
+| Search sessions | `/search [query]` |
+| Resume session | `/resume` |
+| Interrupt | `Ctrl+C` or new message |
 
 ---
 
-## Community
+## Upstream
 
-- 💬 [Discord](https://discord.gg/NousResearch)
-- 📚 [Skills Hub](https://agentskills.io)
-- 🐛 [Issues](https://github.com/NousResearch/hermes-agent/issues)
-- 🔌 [HermesClaw](https://github.com/AaronWong1999/hermesclaw) — Community WeChat bridge: Run Hermes Agent and OpenClaw on the same WeChat account.
+This is a personal fork. The upstream project is maintained by [Nous Research](https://nousresearch.com):
 
----
+- [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+- [Documentation](https://hermes-agent.nousresearch.com/docs/)
+- [Discord](https://discord.gg/NousResearch)
+- [Skills Hub](https://agentskills.io)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
-
-Built by [Nous Research](https://nousresearch.com).
+MIT &mdash; see [LICENSE](LICENSE).
